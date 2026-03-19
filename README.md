@@ -1,6 +1,8 @@
 # Customer Support N8N Workflow
 
-![Customer Support](CustomerSupport.JPG)
+![N8N Workflow](screenshot.JPG)
+
+![Customer Support Interface](support.JPG)
 
 An intelligent automated customer support system built with N8N that processes incoming emails, categorizes them using AI, generates appropriate responses, and logs tickets for tracking.
 
