@@ -1,0 +1,1397 @@
+{
+  "name": "Customer Support",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "id": "78a45631-0693-423f-8dad-0310dad82efe",
+      "name": "New Support Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        1488
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZkoCBOV0fUnVXDRF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5254c3c2-36bc-4616-b4dd-99da46b5fc6d",
+              "name": "Subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "1adc9282-7edb-4d98-972b-d264970aa123",
+              "name": "Text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "178cfb3c-79e9-4ca0-a39f-2778bf29504e",
+              "name": "From",
+              "value": "={{ $json.to.value[0].address }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        1488
+      ],
+      "id": "64fb6b97-3e3f-4a76-a147-69fa513cdcc5",
+      "name": "Clean Email"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"ticket_id\": \"\",\n  \"customer_email\": \"\",\n  \"category\": \"\",\n  \"priority\": \"\",\n  \"status\": \"\",\n  \"summary\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        1712
+      ],
+      "id": "fece7afc-3138-4482-af07-88963e202f72",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Subject: {{ $json.Subject }}\nText: {{ $json.Text }}\nFrom: {{ $json.From }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# Role\nYou are a support ticket classifier. Classify each ticket into exactly one category: Billing, Tech, Orders, or FAQs.\n\n# Categories\n- Billing: Payment issues, invoices, refunds, subscription questions\n- Tech: Technical problems, bugs, troubleshooting, account access\n- Orders: Order tracking, shipping, delivery status\n- FAQs: General questions about company, products, services, hours, contact info\n\n# Instructions\n1. Classify the message into ONE category\n2. Detect priority (low, medium, high)\n3. Generate structured ticket data\n\n# Output Format (STRICT JSON)\n{\n  \"ticket_id\": \"\",\n  \"email\": \"\",\n  \"category\": \"\",\n  \"priority\": \"\",\n  \"status\": \"\",\n  \"summary\": \"\"\n}\n\nIMPORTANT: category must be exactly one of: Billing, Tech, Orders, FAQs"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        672,
+        1488
+      ],
+      "id": "0e018550-a279-47d8-9bba-73e45dcf7d0e",
+      "name": "Ticket Classifier"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Ck5EtOw7b14GDcU568IzyHQ9Cri-extbvntfr1cO3oo",
+          "mode": "list",
+          "cachedResultName": "Customer_suppoter",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ck5EtOw7b14GDcU568IzyHQ9Cri-extbvntfr1cO3oo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ck5EtOw7b14GDcU568IzyHQ9Cri-extbvntfr1cO3oo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Ticket ID": "={{ $json.output.ticket_id }}",
+            "Category ": "={{ $json.output.category }}",
+            "priority": "={{ $json.output.priority }}",
+            "status": "={{ $json.output.status }}",
+            "Summary": "={{ $json.output.summary }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category ",
+              "displayName": "Category ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1248,
+        1488
+      ],
+      "id": "fe1fa99d-4719-4762-893b-bfe54ec6dfa3",
+      "name": "Ticket data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "FLmCK0EePNj51lDL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const id = Math.floor(1000 + Math.random() * 9000);\n\nreturn [{\n  json: {\n    ...$json,\n    Ticket_id: id\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        1488
+      ],
+      "id": "04848dda-be48-4a4b-ae4f-713bceb9dfba",
+      "name": "Randominzation"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "22b9c89b-2b31-46ec-a2b4-ce2111de55e7",
+              "name": "Category ",
+              "value": "={{ $json['Category '] }}",
+              "type": "string"
+            },
+            {
+              "id": "09c0cee0-79be-4ff4-ae96-89c4fb311039",
+              "name": "Subject",
+              "value": "={{ $('Clean Email').item.json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "d6800ba4-8c17-4e8e-8145-94ff6d2f076a",
+              "name": "Text",
+              "value": "={{ $('Clean Email').item.json.Text }}",
+              "type": "string"
+            },
+            {
+              "id": "ec873585-a4e4-495c-9e32-ee66a1497fe2",
+              "name": "From",
+              "value": "={{ $('Clean Email').item.json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "97925ddb-345d-48c7-a620-fddc0bcadf7f",
+              "name": "Ticket ID",
+              "value": "={{ $json['Ticket ID'] }}",
+              "type": "string"
+            },
+            {
+              "id": "15b657d1-671c-4ecc-a0a2-32930831bd10",
+              "name": "priority",
+              "value": "={{ $json.priority }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        1488
+      ],
+      "id": "c1ab499b-21c5-4258-92fb-1372a30848f7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['Category '] }}",
+                    "rightValue": "Billing",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "29aef8dd-4dba-4b26-835c-8dfb27be51bf"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Billing"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d562b1e9-0f14-4392-88b6-ff31111d2735",
+                    "leftValue": "={{ $json['Category '] }}",
+                    "rightValue": "Tech",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Tech"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e351b87a-b57d-443c-af88-0c1e987dd2ef",
+                    "leftValue": "={{ $json['Category '] }}",
+                    "rightValue": "Orders",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Order"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "437a790e-11b2-4c06-8bdb-e2b67817947b",
+                    "leftValue": "={{ $json['Category '] }}",
+                    "rightValue": "FAQs",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "FAQs"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1696,
+        1456
+      ],
+      "id": "78852b04-3bad-47c5-b742-ce0a73511703",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        1760
+      ],
+      "id": "de559ca4-e153-429a-ad9e-202d6274ec5f",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "Q0HpNHTLOoKqCCTG",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('New Support Email').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2304,
+        1520
+      ],
+      "id": "a0bb0182-49cb-42b2-ad31-0ffc0870f4dc",
+      "name": "Reply to a message",
+      "webhookId": "e475ec47-9885-420d-af76-66979788f79a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZkoCBOV0fUnVXDRF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A7E2LJ7EZ",
+          "mode": "list",
+          "cachedResultName": "all-zakeen"
+        },
+        "text": "=🚨 HIGH PRIORITY Support Ticket\n\n*Category:* {{ $('Switch').item.json['Category '] }}\n*From:* {{ $('Switch').item.json.From }}\n*Subject:* {{ $('Switch').item.json.Subject }}\n*Priority:* {{ $('Switch').item.json.priority }}\n\n✅ Auto-reply sent",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2800,
+        1504
+      ],
+      "id": "d8f45b2a-1775-466c-ad15-80aff895695f",
+      "name": "Send a message",
+      "webhookId": "ca700915-b080-4880-a051-4c29b7f9780e",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Uxhptjz8lyuqgQTA",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Edit Fields').item.json.Subject }}\n{{ $('Edit Fields').item.json.Text }}",
+        "options": {
+          "systemMessage": "You are a helpful billing support agent.\n\nGenerate professional, friendly replies to customer emails about billing, payments, invoices, and refunds.\n\nBe empathetic and clear when addressing financial concerns.\n\nOffer to assist further if needed and provide next steps."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1920,
+        896
+      ],
+      "id": "c2811e4e-4493-42d6-9451-603a9f804623",
+      "name": "Billing Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c9d329ed-3b70-489a-8945-5f017878594c",
+              "leftValue": "={{ $('Edit Fields').item.json.priority }}",
+              "rightValue": "high",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2544,
+        1520
+      ],
+      "id": "aa9b8a4d-c89c-4199-9b92-a1ba587a8846",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        2656,
+        2128
+      ],
+      "id": "710623e3-e771-46f6-8043-4e07c829d701",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "nYPJSafZLAWazaTo",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('New Support Email').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2304,
+        1328
+      ],
+      "id": "eedf0722-6125-4558-868f-ecd81db36f3a",
+      "name": "Reply to a message1",
+      "webhookId": "e475ec47-9885-420d-af76-66979788f79a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZkoCBOV0fUnVXDRF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A7E2LJ7EZ",
+          "mode": "list",
+          "cachedResultName": "all-zakeen"
+        },
+        "text": "=🚨 HIGH PRIORITY Support Ticket\n\n*Category:* {{ $('Switch').item.json['Category '] }}\n*From:* {{ $('Switch').item.json.From }}\n*Subject:* {{ $('Switch').item.json.Subject }}\n*Priority:* {{ $('Switch').item.json.priority }}\n\n✅ Auto-reply sent",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2784,
+        1312
+      ],
+      "id": "d50ab910-fd22-491d-b45b-f3c734381d16",
+      "name": "Send a message1",
+      "webhookId": "ca700915-b080-4880-a051-4c29b7f9780e",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Uxhptjz8lyuqgQTA",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c9d329ed-3b70-489a-8945-5f017878594c",
+              "leftValue": "={{ $('Edit Fields').item.json.priority }}",
+              "rightValue": "high",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2544,
+        1328
+      ],
+      "id": "57707bc1-e84e-40dd-92a6-f5cf452f4580",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('New Support Email').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2304,
+        896
+      ],
+      "id": "e8d5bda5-ddd7-478b-96fc-bab1cc1cef2e",
+      "name": "Reply to a message2",
+      "webhookId": "e475ec47-9885-420d-af76-66979788f79a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZkoCBOV0fUnVXDRF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A7E2LJ7EZ",
+          "mode": "list",
+          "cachedResultName": "all-zakeen"
+        },
+        "text": "=🚨 HIGH PRIORITY Support Ticket\n\n*Category:* {{ $('Switch').item.json['Category '] }}\n*From:* {{ $('Switch').item.json.From }}\n*Subject:* {{ $('Switch').item.json.Subject }}\n*Priority:* {{ $('Switch').item.json.priority }}\n\n✅ Auto-reply sent",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        2752,
+        880
+      ],
+      "id": "f649f436-1693-43f6-819e-6a8ebfe24380",
+      "name": "Send a message2",
+      "webhookId": "ca700915-b080-4880-a051-4c29b7f9780e",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Uxhptjz8lyuqgQTA",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c9d329ed-3b70-489a-8945-5f017878594c",
+              "leftValue": "={{ $('Edit Fields').item.json.priority }}",
+              "rightValue": "high",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2528,
+        896
+      ],
+      "id": "76901684-1a6b-4474-8ebd-570da477c83e",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1920,
+        1120
+      ],
+      "id": "c39a0c2c-e55a-440d-b9fb-e4cb1b92b966",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "nYPJSafZLAWazaTo",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Edit Fields').item.json.Subject }}\n\n{{ $('Edit Fields').item.json.Text }}",
+        "options": {
+          "systemMessage": "You are a helpful technical support agent.\n\nGenerate professional, friendly replies to customer emails about technical issues.\n\nProvide clear technical responses with troubleshooting steps when applicable.\n\nBe patient and explain solutions in simple terms."
+        }
+      },
+      "id": "8f4c9bbf-cb5b-42c2-a38d-a3a529327926",
+      "name": "Tech Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1920,
+        1328
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Edit Fields').item.json.Subject }}\n{{ $('Edit Fields').item.json.Text }}",
+        "options": {
+          "systemMessage": "You are a helpful order support agent.\n\nGenerate professional, friendly replies to customer emails about their orders.\n\nProvide helpful responses about order status, tracking, and delivery.\n\nBe reassuring and offer next steps or tracking information when relevant."
+        }
+      },
+      "id": "045e3472-372a-4746-8b80-bc6d6853f97a",
+      "name": "Order Tracking Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1920,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Edit Fields').item.json.Subject }}\n{{ $('Edit Fields').item.json.Text }}",
+        "options": {
+          "systemMessage": "You are a helpful FAQ support agent. Use the knowledge base tool to search for answers to customer questions. Provide accurate, friendly responses based on the information found. If you cannot find the answer in the knowledge base, politely let the customer know and offer to escalate their question."
+        }
+      },
+      "id": "1b9b10ed-58e9-49ef-a722-991cc7e4100c",
+      "name": "FAQ Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2656,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use this tool to search the FAQ knowledge base for answers to customer questions",
+        "memoryKey": {
+          "__rl": true,
+          "value": "vector_store_key",
+          "mode": "list",
+          "cachedResultName": "vector_store_key"
+        }
+      },
+      "id": "667671d4-45c3-4999-847a-ef498ff0641f",
+      "name": "FAQ Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        2720,
+        2256
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6c88ef6a-1e3f-4aa8-8c38-f5e51660fbf9",
+      "name": "OpenAI Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2720,
+        2560
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "nYPJSafZLAWazaTo",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('New Support Email').item.json.id }}",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "8599d610-22c6-4f4e-896b-f79ae36a1bd3",
+      "name": "Reply to FAQ",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        3072,
+        1936
+      ],
+      "webhookId": "9fd87508-5efc-45d4-a402-98187aab9f55",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZkoCBOV0fUnVXDRF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c9d329ed-3b70-489a-8945-5f017878594c",
+              "leftValue": "={{ $('Edit Fields').item.json.priority }}",
+              "rightValue": "high",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b89be3dd-ff0b-4eba-b78b-589fbd5d9078",
+      "name": "If FAQ High Priority",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3328,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A7E2LJ7EZ",
+          "mode": "list",
+          "cachedResultName": "all-zakeen"
+        },
+        "text": "=🚨 HIGH PRIORITY Support Ticket\n\n*Category:* {{ $('Switch').item.json['Category '] }}\n*From:* {{ $('Switch').item.json.From }}\n*Subject:* {{ $('Switch').item.json.Subject }}\n*Priority:* {{ $('Switch').item.json.priority }}\n\n✅ Auto-reply sent",
+        "otherOptions": {}
+      },
+      "id": "4f95022d-de41-44c8-ab4d-35a3236743df",
+      "name": "Send FAQ Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        3568,
+        1920
+      ],
+      "webhookId": "d63dcd05-4589-4d31-bc7f-dded662c3e08",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Uxhptjz8lyuqgQTA",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openrouter/free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        672,
+        1712
+      ],
+      "id": "09c607b7-26ed-4453-b7af-c090434d88d9",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "yonCyIhVBpkEgS0O",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1SyQ2lEWwczrwbSfjvAXKyAXsUS6JXm0w",
+          "mode": "list",
+          "cachedResultName": "FAQS.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1SyQ2lEWwczrwbSfjvAXKyAXsUS6JXm0w/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1920,
+        1936
+      ],
+      "id": "fe721106-5ac2-4f26-99f9-98b58e150962",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "iHvFAClLk9k4IXec",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "customersupport",
+          "mode": "list",
+          "cachedResultName": "customersupport"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        2288,
+        1936
+      ],
+      "id": "a1c59380-9e08-4404-b6d9-ed224685c51c",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "ozwpsmXAS2gTILhV",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "dimensions": 1536
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2288,
+        2256
+      ],
+      "id": "09aa4e31-94b3-4456-9157-cd6fb92bfffe",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "nYPJSafZLAWazaTo",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        2336,
+        2464
+      ],
+      "id": "713f6f9d-2730-4140-acb4-e6a0458b4b53",
+      "name": "Default Data Loader"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Support Email": {
+      "main": [
+        [
+          {
+            "node": "Clean Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Email": {
+      "main": [
+        [
+          {
+            "node": "Ticket Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Ticket Classifier",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket Classifier": {
+      "main": [
+        [
+          {
+            "node": "Randominzation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Randominzation": {
+      "main": [
+        [
+          {
+            "node": "Ticket data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ticket data": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Billing Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tech Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Order Tracking Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Order Tracking Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "FAQ Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Billing Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Billing Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Tech Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tech Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Order Tracking Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAQ Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to FAQ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAQ Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "FAQ Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "FAQ Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to FAQ": {
+      "main": [
+        [
+          {
+            "node": "If FAQ High Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If FAQ High Priority": {
+      "main": [
+        [
+          {
+            "node": "Send FAQ Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ticket Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "main": [
+        [
+          {
+            "node": "FAQ Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "51058dad-7d19-4e03-a04d-48179563a220",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93986980719730036de7d7451f697b4d0eb23114c39a675fcd89105ebd6e2752"
+  },
+  "id": "NepThbhsFZ7BSRW0",
+  "tags": []
+}
